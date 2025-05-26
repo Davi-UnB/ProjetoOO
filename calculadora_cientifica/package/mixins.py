@@ -3,7 +3,7 @@ class RoundMixin:
     Mixin que fornece um método para arredondar valores numericos.
     Útil para padronizar a precisão dos resultados das operações.
     """
-    def _round(self, value, casas_decimais=6):
+    def _round(self, value, casas_decimais=5):
         """
         Arredonda um valor para um número especificado de casas decimais.
 

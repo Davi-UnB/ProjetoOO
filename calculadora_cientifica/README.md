@@ -170,31 +170,39 @@ A seguir, são apresentados os principais casos de uso do sistema:
     * Clique nos botões de operação (`+`, `-`, `*`, `/`) entre os números.
     * Pressione `=` para calcular o resultado.
 
-2.  **Funções Científicas:**
-    * Para funções como `sin`, `cos`, `log`, `ln`, `sqrt`, `abs`: pressione o botão da função. Geralmente, ela será inserida com um parêntese de abertura (ex: `sin(`).
-    * Digite o argumento da função.
-    * Feche o parêntese `)` se necessário (especialmente se houver mais partes na expressão).
-    * Pressione `=` para calcular.
+2.  **Funções Comuns (com parênteses automáticos):**
+    * Para funções como `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `log`, `ln`, `log₂`, `sqrt` (raiz quadrada) e `abs` (valor absoluto):
+        * Pressione o botão da função. Ela será inserida com um parêntese de abertura (ex: `sin(`, `sqrt(`, `abs(`).
+        * Digite o argumento da função.
+        * Feche o parêntese `)` se necessário (especialmente se houver mais partes na expressão).
+        * Pressione `=` para calcular.
+    * **Exemplo `abs(` para `|x|`:** Ao pressionar o botão `|x|`, a calculadora insere `abs(`. Complete com o número e feche o parêntese: `abs(-5)`.
 
-3.  **Tecla Shift (`1/2` e `2/2`):**
+3.  **Potenciação e Raízes (Entrada Manual da Sintaxe):**
+    * **Quadrado (`x²`):** Após inserir um número (ex: `5`), pressione `x²`. A calculadora adicionará `^2` à sua expressão (ex: `5^2`).
+    * **Cubo (`x³`):** Após inserir um número (ex: `4`), pressione `x³`. A calculadora adicionará `^3` à sua expressão (ex: `4^3`).
+    * **Elevado a y (`x^y`):** Insira a base (ex: `2`), pressione `x^y` (que insere `^`), e então insira o expoente (ex: `10`). A expressão ficará `2^10`.
+    * **Raiz Cúbica (`∛`):** Após inserir o radicando (ex: `27`), pressione `∛`. A calculadora adicionará `^(1/3)` à sua expressão (ex: `27^(1/3)`).
+    * **Raiz n-ésima (`ⁿ√`):** Após inserir o radicando (ex: `16`), pressione `ⁿ√`. A calculadora adicionará `^(1/` à sua expressão. Você precisará completar o índice da raiz e fechar o parêntese (ex: `16^(1/4)` para raiz quarta). **Atenção:** Complete a expressão corretamente (ex: `numero^(1/indice)`).
+
+4.  **Tecla Shift (`1/2` e `2/2`):**
     * Pressione `1/2` para acessar o segundo conjunto de funções nos botões (ex: `x²`, `√`, `asin`, etc.). O rótulo do botão mudará para `2/2`.
     * Pressione `2/2` para retornar ao conjunto de funções normal.
 
-4.  **Edição da Expressão:**
+5.  **Edição da Expressão:**
     * `C`: Limpa toda a expressão atual no visor principal.
     * `⌫`: Apaga o caractere ou função imediatamente à esquerda do cursor.
     * `<-` / `->` (geralmente no modo Shift): Movem o cursor dentro da expressão para edição.
 
-5.  **Histórico:**
+6.  **Histórico:**
     * O painel lateral exibe as últimas operações.
     * `HIS`: Limpa todo o histórico de cálculos.
 
-6.  **Tema:**
+7.  **Tema:**
     * `TH`: Alterna entre o tema claro e escuro da interface.
 
-7.  **Constantes (`π`, `e`, `Φ`):**
+8.  **Constantes (`π`, `e`, `Φ`):**
     * Pressione o botão correspondente (pode estar no modo normal ou Shift). O valor da constante será inserido na expressão.
-
 ## 🚀 Como Executar o Projeto
 
 1.  **Pré-requisitos:**

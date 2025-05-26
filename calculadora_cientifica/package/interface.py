@@ -9,14 +9,13 @@ class App:
         self.historico = self.calculadora.historico
         self.expressao = ""
         self.resultado = ""
-
         ctk.set_appearance_mode("Dark")
         ctk.set_default_color_theme("dark-blue")
-
         self.root = ctk.CTk()
         self.root.title("Calculadora Científica")
         self.root.geometry("360x520")
-
+        self.root.minsize(360, 520) #limitar tamanho mínimo
+        self.root.maxsize(360, 520) #limitar tamanho máximo (feita sobre medida)
         self.criar_visor()
         self._atualizar_historico()
         self.criar_teclado()
@@ -83,16 +82,21 @@ class App:
         self.root.after(self.blink_speed, self.toggle_cursor)
 
     def atualizar_visor(self):
-        """Atualiza o visor com o cursor na posição correta"""
-        texto_sem_cursor = self.expressao.replace(self.cursor_char, "")
+        """Atualiza o visor com a expressão atual e o cursor."""
+        texto_base = self.expressao  # self.expressao DEVE estar limpa, sem o cursor_char
 
+        texto_para_exibir = texto_base
         if self.cursor_visible:
-            # Insere o cursor na posição correta
-            texto_visor = texto_sem_cursor[:self.cursor_pos] + self.cursor_char + texto_sem_cursor[self.cursor_pos:]
-        else:
-            texto_visor = texto_sem_cursor
+            texto_para_exibir = (texto_base[:self.cursor_pos] +
+                                 self.cursor_char +
+                                 texto_base[self.cursor_pos:])
 
-        self.visor_principal.configure(text=texto_visor if texto_visor else self.cursor_char)
+        if not self.expressao and self.cursor_pos == 0:  # Expressão vazia de fato
+            # Se cursor visível, mostra só o cursor. Se não, mostra "0"
+            self.visor_principal.configure(text=self.cursor_char if self.cursor_visible else "0")
+        else:
+            self.visor_principal.configure(text=texto_para_exibir)
+
 
     def mover_cursor(self, direcao):
         """Move o cursor para esquerda ou direita"""
@@ -126,9 +130,15 @@ class App:
         self.atualizar_teclado()
 
     def apagar_ultimo(self):
-        if len(self.expressao) > 0:
-            self.expressao = self.expressao[:-1]
-            self.visor_principal.configure(text=self.expressao if self.expressao else "0")
+        """Apaga o caractere antes da posição do cursor."""
+        if self.cursor_pos > 0 and self.expressao:  # Só apaga se houver algo antes do cursor
+            self.expressao = (self.expressao[:self.cursor_pos - 1] +
+                              self.expressao[self.cursor_pos:])
+            self.cursor_pos -= 1
+            self.atualizar_visor()  # Usa o método centralizado para atualizar o display
+        elif not self.expressao:  # Se a expressão já estiver vazia
+            self.cursor_pos = 0
+            self.atualizar_visor()
 
     def atualizar_teclado(self):
         for widget in self.teclado_frame.winfo_children():
@@ -246,24 +256,18 @@ class App:
         self.atualizar_visor()
 
     def limpar_tudo(self):
-        # self.expressao = "0"
-        # self.resultado = ""
-        # self.cursor_pos = 0
-        # self.visor_principal.configure(text="0")
-        # self.visor_superior.configure(text="")
-
         self.expressao = ""
         self.resultado = ""
         self.cursor_pos = 0
-        self.visor_principal.configure(text=self.cursor_char)
         self.visor_superior.configure(text="")
+        self.atualizar_visor()
 
     def calcular(self):
         try:
 
-            # Substituições especiais antes do cálculo
-            expressao = self.expressao.replace('log₂(', 'self.calculadora.log2(')
-            expressao = expressao.replace('abs(', 'self.calculadora.modulo(')
+            if not self.expressao.strip():  # Não calcular se expressão estiver vazia
+                return
+
             resultado = self.calculadora.avaliar_expressao(self.expressao)
 
             if isinstance(resultado, str) and resultado.startswith("Erro"):
@@ -274,17 +278,28 @@ class App:
 
             self.visor_superior.configure(text=self.expressao)
 
+
             if isinstance(resultado, float):
-                if abs(resultado) > 1e6 or abs(resultado) < 1e-6:
-                    resultado_formatado = f"{resultado:.6e}"
+                if resultado == 0.0:  # <-- Checagem explícita para 0.0
+                    resultado_formatado = "0"
+                elif abs(resultado) > 1e9 or (abs(resultado) < 1e-6 and resultado != 0.0): # Usei 1e9 para números grandes, e 1e-6 para pequenos não-zero
+                    resultado_formatado = f"{resultado:.6e}" # Notação científica para números muito grandes ou muito pequenos (mas não zero)
                 else:
-                    resultado_formatado = f"{resultado:.6f}".rstrip('0').rstrip(
-                        '.') if '.' in f"{resultado:.6f}" else f"{resultado}"
-            else:
+                    # Formatação padrão para outros números float
+                    # Usar uma boa quantidade de casas decimais para precisão interna antes de cortar os zeros
+                    temp_str = f"{resultado:.8f}"  # Ex: 8 casas decimais
+                    temp_str = temp_str.rstrip('0') # Remove zeros à direita (ex: "5.1200" -> "5.12")
+                    if temp_str.endswith('.'):      # Se terminar com um ponto (ex: "5.")
+                        temp_str = temp_str.rstrip('.') # Remove o ponto (ex: "5." -> "5")
+                    resultado_formatado = temp_str if temp_str else "0" # Garante que não fique vazio (ex: se o resultado fosse 0.00000000001 e .8f o tornasse "0")
+
+            else: # Se não for float (ex: se alguma operação retornar um int diretamente)
                 resultado_formatado = str(resultado)
 
+            # Atualiza o visor principal com o resultado formatado
             self.visor_principal.configure(text=resultado_formatado)
             self.expressao = resultado_formatado
+            self.cursor_pos = len(self.expressao)
 
         except ValueError as e:
             self.mostrar_erro(str(e))
@@ -317,16 +332,3 @@ class App:
             self.historico_texto.insert("end", f"{operacao[0]} = {operacao[1]}\n")
 
         self.historico_texto.configure(state="disabled")
-
-    def inserir_texto(self, texto):
-        """Insere texto na posição do cursor"""
-        if self.expressao:
-            self.expressao = (self.expressao[:self.cursor_pos] +
-                              texto +
-                              self.expressao[self.cursor_pos:])
-            self.cursor_pos += len(texto)
-        else:
-            self.expressao = texto
-            self.cursor_pos = len(texto)
-        self.visor_principal.configure(text=self.expressao)
-
